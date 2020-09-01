@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">JWPD</string>
+    <string name="code">条码:</string>
+    <string name="number">数量:</string>
+    <string name="insert">添加</string>
+    <string name="user">用户:</string>
+    <string name="modifyTitle">修改条码信息</string>
+    <string name="modify">修改</string>
+    <string name="delete">删除</string>
+    <string name="codeNum">已扫条码数:%1$d</string>
+    <string name="export">导出</string>
+
+    <string name="codeValue">%1$s</string>
+    <string name="numberValue">%1$d</string>
+
+
+    <string name="codeId">text_view_%1$d</string>
+</resources>
