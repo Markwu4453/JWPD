@@ -10,6 +10,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import cn.jwjg.jwpd.entity.Code;
 
@@ -19,6 +21,7 @@ public class ModifyActivity extends AppCompatActivity {
     private String codeM;
     private Long numberM;
     private String userM;
+    private String productStateM;
 
     //拦截返回键，先执行setResult()方法再手动执行finish（）方法
 //    @Override
@@ -45,14 +48,28 @@ public class ModifyActivity extends AppCompatActivity {
         codeM=codeClass.getCodeNo();
         numberM=codeClass.getNumber();
         userM=codeClass.getUser();
+        productStateM=codeClass.getProductState();
         final EditText codeETM=findViewById(R.id.codeTextM);
         final EditText numberETM=findViewById(R.id.numberTextM);
         final EditText userETM=findViewById(R.id.userTextM);
+        final RadioGroup productStateRG=findViewById(R.id.rgM_1);
         //给输入框赋值
 
         codeETM.setText(codeClass.getCodeNo());
         numberETM.setText(String.format(getResources().getString(R.string.numberValue),codeClass.getNumber()));
         userETM.setText(codeClass.getUser());
+        switch (productStateM){
+            case "半成品" :
+                productStateRG.check(R.id.rbM_2);
+                break;
+            case "正常品" :
+                productStateRG.check(R.id.rbM_1);
+                break;
+            case "黄卡" :
+                productStateRG.check(R.id.rbM_3);
+                break;
+        }
+
         //监测输入框数值变化
         codeETM.addTextChangedListener(new TextWatcher() {
             @Override
@@ -120,6 +137,16 @@ public class ModifyActivity extends AppCompatActivity {
             }
         });
 
+        //获得单选框的值
+
+        productStateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                System.out.println( ( (RadioButton)( findViewById(checkedId) ) ).getText() );
+                productStateM=( (RadioButton)( findViewById(checkedId) ) ).getText().toString();
+            }
+        });
+
 
         Button modifyButton=findViewById(R.id.buttonM);
         modifyButton.setOnClickListener(new View.OnClickListener() {
@@ -130,7 +157,7 @@ public class ModifyActivity extends AppCompatActivity {
                 Intent intent=getIntent();
 //                intent.getExtras().putString("code",codeM);
                 Code codeClass=(Code)getIntent().getSerializableExtra("codeData");
-                Code codeDataM =new Code(codeClass.getId(),codeM,numberM,userM);
+                Code codeDataM =new Code(codeClass.getId(),codeM,numberM,userM,productStateM);
                 intent.putExtra("codeDataM",codeDataM);
 //                bundleM.putString("code",code);
 //                bundleM.putLong("number",number);

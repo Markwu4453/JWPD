@@ -129,6 +129,7 @@ public class ExcelUtil {
                     list.add(code.getCodeNo());
                     list.add(code.getNumber().toString());
                     list.add(code.getUser());
+                    list.add(code.getProductState());
 
 //                    list.add(storageMessageEx.getStorage_man());
 //                    list.add(storageMessageEx.getStorageDate().toString());
@@ -203,6 +204,7 @@ public class ExcelUtil {
                 list.add(code.getCodeNo());
                 list.add(code.getNumber().toString());
                 list.add(code.getUser());
+                list.add(code.getProductState());
 
 //                    list.add(storageMessageEx.getStorage_man());
 //                    list.add(storageMessageEx.getStorageDate().toString());
@@ -226,7 +228,7 @@ public class ExcelUtil {
 
             workbook.write();
             workbook.close();
-            FileUtils.deleteFoder(file);
+            FileUtils.deleteFolder(file);
             fileM.renameTo(file);
 
         } catch (Exception e) {
@@ -257,6 +259,7 @@ public class ExcelUtil {
                 list.add(code.getCodeNo());
                 list.add(code.getNumber().toString());
                 list.add(code.getUser());
+                list.add(code.getProductState());
                 Log.d("ExcelUtil id", ""+code.getId());
                 for (int i = 0; i <list.size() ; i++) {
                     //adCell方法是会覆盖原有数据的
@@ -321,6 +324,7 @@ public class ExcelUtil {
             code.setCodeNo(list.get(1));
             code.setNumber(Long.parseLong(list.get(2)));
             code.setUser(list.get(3));
+            code.setProductState(list.get(4));
 
 //            Log.d("ExcelUtil id", ""+code.getId());
 
@@ -361,6 +365,7 @@ public class ExcelUtil {
                 code.setCodeNo(list.get(1));
                 code.setNumber(Long.parseLong(list.get(2)));
                 code.setUser(list.get(3));
+                code.setProductState(list.get(4));
 
                 codeList.add(code);
 
@@ -379,4 +384,81 @@ public class ExcelUtil {
         return codeList;
     }
 
+    //根据页码查询数据
+    public static List<Code> selectAllByPage(String fileName,Integer pageIndex){
+        Code code=null;
+        WritableWorkbook writebook = null;
+        File file=new File(fileName);
+        List<Code> codeList=null;
+        int startRow;
+        int endRow;
+
+        int sum=getTotalNumber(fileName);
+        if (sum>=pageIndex*10){
+            startRow=2+(pageIndex-1)*10;
+            endRow=11+(pageIndex-1)*10;
+        }else{
+            startRow=2+(pageIndex-1)*10;
+            endRow=sum+1;
+        }
+
+        try {
+            codeList=new ArrayList<Code>();
+            Workbook workbook = Workbook.getWorkbook(file);
+            Sheet sheet=workbook.getSheet(0);
+
+
+//            int Rows=sheet.getRows()-1;
+            int Columns=sheet.getColumns();
+
+            for (int j = startRow; j <= endRow; j++) {
+                List<String> list=new ArrayList<>();
+
+                for (int i = 0; i <Columns ; i++) {
+                    Cell cell =sheet.getCell(i,j-1);
+                    list.add(cell.getContents());
+
+                }
+                code=new Code();
+                code.setId(Long.parseLong(list.get(0)));
+                code.setCodeNo(list.get(1));
+                code.setNumber(Long.parseLong(list.get(2)));
+                code.setUser(list.get(3));
+                code.setProductState(list.get(4));
+
+                codeList.add(code);
+
+            }
+
+
+
+//            Log.d("ExcelUtil id", ""+code.getId());
+
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return codeList;
+
+    }
+
+    //查询条码数
+    public static int getTotalNumber(String fileName){
+        File file=new File(fileName);
+        Workbook workbook = null;
+        try {
+            workbook = Workbook.getWorkbook(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        } catch (BiffException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        Sheet sheet=workbook.getSheet(0);
+        int Rows=sheet.getRows();
+        return Rows-1;
+    }
 }

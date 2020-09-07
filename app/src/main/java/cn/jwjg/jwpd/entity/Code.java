@@ -7,12 +7,14 @@ public class Code implements Serializable {
     private String codeNo;
     private Long number;
     private String user;
+    private String productState;
 
-    public Code(Long id, String codeNo, Long number, String user) {
+    public Code(Long id, String codeNo, Long number, String user, String productState) {
         Id = id;
         this.codeNo = codeNo;
         this.number = number;
         this.user = user;
+        this.productState = productState;
     }
 
     public Code() {
@@ -50,6 +52,13 @@ public class Code implements Serializable {
         this.user = user;
     }
 
+    public String getProductState() {
+        return productState;
+    }
+
+    public void setProductState(String productState) {
+        this.productState = productState;
+    }
 
     @Override
     public String toString() {
@@ -58,6 +67,7 @@ public class Code implements Serializable {
                 ", codeNo='" + codeNo + '\'' +
                 ", number=" + number +
                 ", user='" + user + '\'' +
+                ", productState='" + productState + '\'' +
                 '}';
     }
 }

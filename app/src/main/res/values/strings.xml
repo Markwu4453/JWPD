@@ -13,6 +13,11 @@
     <string name="codeValue">%1$s</string>
     <string name="numberValue">%1$d</string>
 
+    <string name="pageIndex">%1$d</string>
+
+    <string name="productType1">正常品</string>
+    <string name="productType2">半成品</string>
+    <string name="productType3">黄卡</string>
 
     <string name="codeId">text_view_%1$d</string>
 </resources>

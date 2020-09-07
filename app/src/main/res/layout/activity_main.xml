@@ -8,6 +8,8 @@
     tools:context=".MainActivity">
 
 
+
+
     <TextView
         android:id="@+id/code"
         android:layout_width="wrap_content"
@@ -98,13 +100,13 @@
         android:gravity="start"
         android:text="@string/code"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf='parent'
+        app:layout_constraintTop_toBottomOf="@id/rg_1"
         app:layout_constraintEnd_toStartOf="@id/numberShow"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginBottom="80dp"
 
 
-        app:layout_constraintTop_toTopOf='parent'
+
         tools:ignore="MissingConstraints">
 
     </TextView>
@@ -118,8 +120,8 @@
         android:gravity="end"
         android:text="@string/number"
         android:textSize="20sp"
-        app:layout_constraintTop_toTopOf='parent'
-        app:layout_constraintBottom_toBottomOf='parent'
+        app:layout_constraintTop_toBottomOf="@id/rg_1"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/codeShow"
         android:layout_marginBottom="80dp"
@@ -144,6 +146,39 @@
 
 
     </TextView>
+
+    <RadioGroup
+        android:id="@+id/rg_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/user"
+        tools:ignore="MissingConstraints">
+        <RadioButton
+            android:id="@+id/rb_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/productType1"
+            android:textSize="16sp"
+            android:textColor="#c50f57"
+            />
+        <RadioButton
+            android:id="@+id/rb_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/productType2"
+            android:textSize="16sp"
+            android:textColor="#c50f57"
+            />
+        <RadioButton
+            android:id="@+id/rb_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/productType3"
+            android:textSize="16sp"
+            android:textColor="#c50f57"
+            />
+    </RadioGroup>
 
     <EditText
         android:id="@+id/userText"
@@ -174,6 +209,121 @@
 
     </TextView>
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="30dp" />
 
+    <ImageView
+        android:id="@+id/BottomPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:tint="#000000"
+        app:srcCompat="@android:drawable/ic_media_next"
+
+        android:layout_marginLeft="287dp"
+        android:layout_marginStart="287dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:id="@+id/TopPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:tint="#000000"
+        app:srcCompat="@android:drawable/ic_media_previous"
+        android:layout_marginLeft="145dp"
+        android:layout_marginStart="145dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:id="@+id/LastPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:rotation="180"
+        app:tint="#000000"
+        app:srcCompat="@android:drawable/ic_media_play"
+        android:layout_marginLeft="189dp"
+        android:layout_marginStart="189dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:id="@+id/NextPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:tint="#000000"
+        app:srcCompat="@android:drawable/ic_media_play"
+        android:layout_marginLeft="239dp"
+        android:layout_marginStart="239dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+
+        tools:ignore="MissingConstraints" />
+
+    <EditText
+        android:id="@+id/CurrentPageIndex"
+        android:layout_width="20dp"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:maxLines="1"
+        android:layout_marginLeft="69dp"
+        android:layout_marginStart="69dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        android:inputType="number"
+        tools:ignore="MissingConstraints">
+
+    </EditText>
+    <EditText
+        android:id="@+id/TotalPageIndex"
+        android:layout_width="20dp"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:maxLines="1"
+        android:layout_marginLeft="109dp"
+        android:layout_marginStart="119dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        android:inputType="number"
+        android:enabled="false"
+        tools:ignore="MissingConstraints">
+
+    </EditText>
+    <TextView
+        android:id="@+id/splitPageIndex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints"
+        android:text="/"
+        android:textSize="20sp"
+        android:maxLines="1"
+        android:layout_marginLeft="99dp"
+        android:layout_marginStart="99dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        >
+
+    </TextView>
+
+    <Button
+        android:id="@+id/PageJump"
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:text="跳转"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        tools:ignore="MissingConstraints">
+
+    </Button>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
