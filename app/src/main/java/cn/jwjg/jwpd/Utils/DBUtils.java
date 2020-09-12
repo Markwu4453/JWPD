@@ -158,7 +158,8 @@ public class DBUtils {
                     Long number=rs.getLong("数量");
                     String user=rs.getString("用户");
                     String productState=rs.getString("产品状态");
-                    code=new Code(id,codeNo,number,user,productState);
+                    Integer lineNo=rs.getInt("线位");
+                    code=new Code(id,codeNo,number,user,productState,lineNo);
 
 
                 }

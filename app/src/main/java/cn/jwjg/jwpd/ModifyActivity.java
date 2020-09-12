@@ -12,16 +12,28 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import cn.jwjg.jwpd.entity.Code;
 
-public class ModifyActivity extends AppCompatActivity {
+public class ModifyActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener{
 
 
     private String codeM;
     private Long numberM;
     private String userM;
     private String productStateM;
+    private Integer lineNoM;
+
+    private EditText codeETM;
+    private EditText numberETM;
+    private EditText userETM;
+    private RadioGroup productStateRGM1;
+    private RadioGroup productStateRGM2;
+    private EditText lineNoETM;
+    private TextView linePositionM;
 
     //拦截返回键，先执行setResult()方法再手动执行finish（）方法
 //    @Override
@@ -44,30 +56,48 @@ public class ModifyActivity extends AppCompatActivity {
 //            number= bundle.getLong("number");
 //            code=bundle.getString("code");
 //        }
+        Intent intent=getIntent();
+
         Code codeClass=(Code)getIntent().getSerializableExtra("codeData");
         codeM=codeClass.getCodeNo();
         numberM=codeClass.getNumber();
         userM=codeClass.getUser();
         productStateM=codeClass.getProductState();
-        final EditText codeETM=findViewById(R.id.codeTextM);
-        final EditText numberETM=findViewById(R.id.numberTextM);
-        final EditText userETM=findViewById(R.id.userTextM);
-        final RadioGroup productStateRG=findViewById(R.id.rgM_1);
+        lineNoM=codeClass.getLineNo();
+        Long rowNo=getIntent().getLongExtra("rowNo",0);
+        System.out.println(lineNoM);
+        //注册组件
+        codeETM=findViewById(R.id.codeTextM);
+        numberETM=findViewById(R.id.numberTextM);
+        userETM=findViewById(R.id.userTextM);
+        productStateRGM1=findViewById(R.id.rgM_1);
+        productStateRGM2=findViewById(R.id.rgM_2);
+        lineNoETM=findViewById(R.id.lineNoM);
+        linePositionM=findViewById(R.id.linePositionM);
         //给输入框赋值
 
         codeETM.setText(codeClass.getCodeNo());
         numberETM.setText(String.format(getResources().getString(R.string.numberValue),codeClass.getNumber()));
         userETM.setText(codeClass.getUser());
+        if (lineNoM==null){
+            lineNoETM.setText("");
+        }else {
+            lineNoETM.setText(String.format(getResources().getString(R.string.numberValue), codeClass.getLineNo()));
+        }
         switch (productStateM){
             case "半成品" :
-                productStateRG.check(R.id.rbM_2);
+                productStateRGM1.check(R.id.rbM_2);
                 break;
             case "正常品" :
-                productStateRG.check(R.id.rbM_1);
+                productStateRGM1.check(R.id.rbM_1);
                 break;
             case "黄卡" :
-                productStateRG.check(R.id.rbM_3);
+                productStateRGM2.check(R.id.rbM_3);
                 break;
+            case "待车品":
+                productStateRGM2.check(R.id.rbM_4);
+                lineNoETM.setVisibility(View.VISIBLE);
+                linePositionM.setVisibility(View.VISIBLE);
         }
 
         //监测输入框数值变化
@@ -138,15 +168,31 @@ public class ModifyActivity extends AppCompatActivity {
         });
 
         //获得单选框的值
+        productStateRGM1.setOnCheckedChangeListener(this);
+        productStateRGM2.setOnCheckedChangeListener(this);
 
-        productStateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+
+        lineNoETM.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                System.out.println( ( (RadioButton)( findViewById(checkedId) ) ).getText() );
-                productStateM=( (RadioButton)( findViewById(checkedId) ) ).getText().toString();
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length()==0){
+                        lineNoM=null;
+                    }else{
+                        lineNoM=Integer.parseInt(s.toString());
+                    }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
-
 
         Button modifyButton=findViewById(R.id.buttonM);
         modifyButton.setOnClickListener(new View.OnClickListener() {
@@ -157,7 +203,12 @@ public class ModifyActivity extends AppCompatActivity {
                 Intent intent=getIntent();
 //                intent.getExtras().putString("code",codeM);
                 Code codeClass=(Code)getIntent().getSerializableExtra("codeData");
-                Code codeDataM =new Code(codeClass.getId(),codeM,numberM,userM,productStateM);
+                Code codeDataM;
+                if (productStateM.equals("待车品")) {
+                     codeDataM= new Code(codeClass.getId(), codeM, numberM, userM, productStateM, lineNoM);
+                }else{
+                    codeDataM= new Code(codeClass.getId(), codeM, numberM, userM, productStateM, null);
+                }
                 intent.putExtra("codeDataM",codeDataM);
 //                bundleM.putString("code",code);
 //                bundleM.putLong("number",number);
@@ -178,10 +229,9 @@ public class ModifyActivity extends AppCompatActivity {
 //            public void onClick(View v) {
 //                Intent intent=getIntent();
 //                Bundle bundleM =new Bundle();
-//                bundleM.putString("code",code);
-//                bundleM.putLong("number",number);
-//                bundleM.putInt("id",id);
-//                bundleM.putString("type","delete");
+//
+//                bundleM.putLong("id",codeClass.getId());
+//
 //                intent.putExtras(bundleM);
 //
 //
@@ -189,6 +239,37 @@ public class ModifyActivity extends AppCompatActivity {
 //                finish();
 //            }
 //        });
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        switch (group.getId()){
+            case R.id.rgM_1:
+
+                linePositionM.setVisibility(View.INVISIBLE);
+
+                lineNoETM.setVisibility(View.INVISIBLE);
+                productStateRGM2.setOnCheckedChangeListener(null);
+                productStateRGM2.clearCheck();
+                productStateRGM2.setOnCheckedChangeListener(this);
+                productStateM=((RadioButton)findViewById(checkedId)).getText().toString();
+                break;
+            case R.id.rgM_2:
+
+                if (checkedId==R.id.rbM_4){
+                    linePositionM.setVisibility(View.VISIBLE);
+                    lineNoETM.setVisibility(View.VISIBLE);
+                }else{
+
+                    linePositionM.setVisibility(View.INVISIBLE);
+                    lineNoETM.setVisibility(View.INVISIBLE);
+                }
+                productStateRGM1.setOnCheckedChangeListener(null);
+                productStateRGM1.clearCheck();
+                productStateRGM1.setOnCheckedChangeListener(this);
+                productStateM=((RadioButton)findViewById(checkedId)).getText().toString();
+                break;
+        }
     }
 }
 

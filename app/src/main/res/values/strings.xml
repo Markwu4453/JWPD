@@ -8,6 +8,7 @@
     <string name="modify">修改</string>
     <string name="delete">删除</string>
     <string name="codeNum">已扫条码数:%1$d</string>
+    <string name="linePosition">线位</string>
     <string name="export">导出</string>
 
     <string name="codeValue">%1$s</string>
@@ -18,6 +19,8 @@
     <string name="productType1">正常品</string>
     <string name="productType2">半成品</string>
     <string name="productType3">黄卡</string>
+    <string name="productType4">待车品</string>
+
 
     <string name="codeId">text_view_%1$d</string>
 </resources>

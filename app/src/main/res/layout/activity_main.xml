@@ -100,7 +100,7 @@
         android:gravity="start"
         android:text="@string/code"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/rg_1"
+        app:layout_constraintTop_toBottomOf="@id/rg_2"
         app:layout_constraintEnd_toStartOf="@id/numberShow"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginBottom="80dp"
@@ -111,8 +111,25 @@
 
     </TextView>
 
+<!--    <TextView-->
+<!--        android:id="@+id/lineNoShow"-->
+<!--        android:layout_width="40dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:gravity="end"-->
+<!--        android:text="@string/linePosition"-->
+<!--        android:textSize="20sp"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/rg_2"-->
+
+<!--        app:layout_constraintEnd_toStartOf="@id/numberShow"-->
+<!--        app:layout_constraintStart_toEndOf="@id/codeShow"-->
+<!--        android:layout_marginBottom="80dp"-->
 
 
+
+<!--        tools:ignore="MissingConstraints">-->
+
+
+<!--    </TextView>-->
     <TextView
         android:id="@+id/numberShow"
         android:layout_width="0dp"
@@ -120,7 +137,7 @@
         android:gravity="end"
         android:text="@string/number"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/rg_1"
+        app:layout_constraintTop_toBottomOf="@id/rg_2"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/codeShow"
@@ -140,46 +157,12 @@
         android:gravity="center"
         android:text="@string/user"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/insert"
+        app:layout_constraintTop_toBottomOf="@id/number"
         android:layout_marginTop="10dp"
         tools:ignore="MissingConstraints">
 
 
     </TextView>
-
-    <RadioGroup
-        android:id="@+id/rg_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/user"
-        tools:ignore="MissingConstraints">
-        <RadioButton
-            android:id="@+id/rb_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/productType1"
-            android:textSize="16sp"
-            android:textColor="#c50f57"
-            />
-        <RadioButton
-            android:id="@+id/rb_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/productType2"
-            android:textSize="16sp"
-            android:textColor="#c50f57"
-            />
-        <RadioButton
-            android:id="@+id/rb_3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/productType3"
-            android:textSize="16sp"
-            android:textColor="#c50f57"
-            />
-    </RadioGroup>
-
     <EditText
         android:id="@+id/userText"
         android:layout_width="100dp"
@@ -187,13 +170,71 @@
         android:textSize="12sp"
         android:maxLines="1"
         app:layout_constraintLeft_toRightOf="@id/user"
-        app:layout_constraintTop_toBottomOf="@id/insert"
+        app:layout_constraintTop_toBottomOf="@id/number"
         android:layout_marginTop="10dp"
         android:text="1"
 
         android:inputType="number">
 
     </EditText>
+    <RadioGroup
+        android:id="@+id/rg_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/user"
+        tools:ignore="MissingConstraints">
+
+            <RadioButton
+                android:id="@+id/rb_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/productType1"
+                android:textSize="16sp"
+                android:textColor="#c50f57"
+
+                />
+            <RadioButton
+                android:id="@+id/rb_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/productType2"
+                android:textSize="16sp"
+                android:textColor="#c50f57"
+
+                />
+
+
+
+
+
+    </RadioGroup>
+    <RadioGroup
+        android:id="@+id/rg_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/rg_1"
+        tools:ignore="MissingConstraints">
+        <RadioButton
+            android:id="@+id/rb_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/productType3"
+            android:textSize="16sp"
+            android:textColor="#c50f57"
+
+            />
+        <RadioButton
+            android:id="@+id/rb_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/productType4"
+            android:textSize="16sp"
+            android:textColor="#c50f57"
+
+            />
+    </RadioGroup>
 
     <TextView
         android:id="@+id/codeNum"
@@ -209,12 +250,40 @@
 
     </TextView>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline1"
+    <TextView
+        android:id="@+id/linePosition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_end="30dp" />
+        android:text="@string/linePosition"
+        android:textSize="20sp"
+        android:layout_marginStart="60dp"
+        android:layout_marginLeft="60dp"
+        app:layout_constraintTop_toBottomOf="@id/rg_1"
+        app:layout_constraintStart_toEndOf="@id/rg_2"
+        android:visibility="invisible"
+        tools:ignore="MissingConstraints">
+
+    </TextView>
+    <EditText
+        android:id="@+id/lineNo"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints"
+        app:layout_constraintStart_toEndOf="@id/linePosition"
+        app:layout_constraintTop_toBottomOf="@id/rg_1"
+        android:visibility="invisible"
+        android:inputType="number"
+        android:textSize="12sp"
+        >
+
+
+    </EditText>
+<!--    <androidx.constraintlayout.widget.Guideline-->
+<!--        android:id="@+id/guideline1"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintGuide_end="30dp" />-->
 
     <ImageView
         android:id="@+id/BottomPage"
@@ -226,7 +295,7 @@
         android:layout_marginLeft="287dp"
         android:layout_marginStart="287dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="MissingConstraints" />
 
     <ImageView
@@ -238,7 +307,7 @@
         android:layout_marginLeft="145dp"
         android:layout_marginStart="145dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
 
         tools:ignore="MissingConstraints" />
 
@@ -252,7 +321,7 @@
         android:layout_marginLeft="189dp"
         android:layout_marginStart="189dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
 
         tools:ignore="MissingConstraints" />
 
@@ -265,7 +334,7 @@
         android:layout_marginLeft="239dp"
         android:layout_marginStart="239dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
 
         tools:ignore="MissingConstraints" />
 
@@ -278,7 +347,7 @@
         android:layout_marginLeft="69dp"
         android:layout_marginStart="69dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:inputType="number"
         tools:ignore="MissingConstraints">
 
@@ -292,7 +361,7 @@
         android:layout_marginLeft="109dp"
         android:layout_marginStart="119dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:inputType="number"
         android:enabled="false"
         tools:ignore="MissingConstraints">
@@ -309,10 +378,12 @@
         android:layout_marginLeft="99dp"
         android:layout_marginStart="99dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
         >
 
     </TextView>
+
+
 
     <Button
         android:id="@+id/PageJump"
@@ -321,7 +392,7 @@
         android:text="跳转"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="MissingConstraints">
 
     </Button>

@@ -8,13 +8,15 @@ public class Code implements Serializable {
     private Long number;
     private String user;
     private String productState;
+    private Integer lineNo;
 
-    public Code(Long id, String codeNo, Long number, String user, String productState) {
+    public Code(Long id, String codeNo, Long number, String user, String productState, Integer lineNo) {
         Id = id;
         this.codeNo = codeNo;
         this.number = number;
         this.user = user;
         this.productState = productState;
+        this.lineNo = lineNo;
     }
 
     public Code() {
@@ -56,6 +58,14 @@ public class Code implements Serializable {
         return productState;
     }
 
+    public Integer getLineNo() {
+        return lineNo;
+    }
+
+    public void setLineNo(Integer lineNo) {
+        this.lineNo = lineNo;
+    }
+
     public void setProductState(String productState) {
         this.productState = productState;
     }
@@ -68,6 +78,7 @@ public class Code implements Serializable {
                 ", number=" + number +
                 ", user='" + user + '\'' +
                 ", productState='" + productState + '\'' +
+                ", lineNo=" + lineNo +
                 '}';
     }
 }

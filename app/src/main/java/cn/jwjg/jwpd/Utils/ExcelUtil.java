@@ -1,6 +1,7 @@
 package cn.jwjg.jwpd.Utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
@@ -10,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -130,6 +132,13 @@ public class ExcelUtil {
                     list.add(code.getNumber().toString());
                     list.add(code.getUser());
                     list.add(code.getProductState());
+                    if (code.getLineNo()==null){
+                        list.add(null);
+                    }else{
+                        list.add(code.getLineNo().toString());
+                    }
+
+
 
 //                    list.add(storageMessageEx.getStorage_man());
 //                    list.add(storageMessageEx.getStorageDate().toString());
@@ -139,12 +148,14 @@ public class ExcelUtil {
 
                     for (int i = 0; i < list.size(); i++  ) {
                         sheet.addCell(new Label(i, j +  1, list.get(i), arial12format));
-                        if (list.get(i).length() <= 4) {
-                            //设置列宽
-                            sheet.setColumnView(i, list.get(i).length()  + 8);
-                        } else {
-                            //设置列宽
-                            sheet.setColumnView(i, list.get(i).length() +  5);
+                        if (list.get(i)!=null) {
+                            if (list.get(i).length() <= 4) {
+                                //设置列宽
+                                sheet.setColumnView(i, list.get(i).length() + 8);
+                            } else {
+                                //设置列宽
+                                sheet.setColumnView(i, list.get(i).length() + 5);
+                            }
                         }
                     }
                     //设置行高
@@ -205,7 +216,11 @@ public class ExcelUtil {
                 list.add(code.getNumber().toString());
                 list.add(code.getUser());
                 list.add(code.getProductState());
-
+                if (code.getLineNo()==null){
+                    list.add(null);
+                }else{
+                    list.add(code.getLineNo().toString());
+                }
 //                    list.add(storageMessageEx.getStorage_man());
 //                    list.add(storageMessageEx.getStorageDate().toString());
 //                    list.add(storageMessageEx.getCreateTime().toString());
@@ -214,12 +229,14 @@ public class ExcelUtil {
 
                 for (int i = 0; i < list.size(); i++  ) {
                     sheet.addCell(new Label(i, j +  1, list.get(i), arial12format));
-                    if (list.get(i).length() <= 4) {
-                        //设置列宽
-                        sheet.setColumnView(i, list.get(i).length()  + 8);
-                    } else {
-                        //设置列宽
-                        sheet.setColumnView(i, list.get(i).length() +  5);
+                    if (list.get(i)!=null) {
+                        if (list.get(i).length() <= 4) {
+                            //设置列宽
+                            sheet.setColumnView(i, list.get(i).length() + 8);
+                        } else {
+                            //设置列宽
+                            sheet.setColumnView(i, list.get(i).length() + 5);
+                        }
                     }
                 }
                 //设置行高
@@ -260,29 +277,49 @@ public class ExcelUtil {
                 list.add(code.getNumber().toString());
                 list.add(code.getUser());
                 list.add(code.getProductState());
-                Log.d("ExcelUtil id", ""+code.getId());
-                for (int i = 0; i <list.size() ; i++) {
-                    //adCell方法是会覆盖原有数据的
-                    sheet.addCell(new Label(i, Integer.parseInt(list.get(0)), list.get(i), arial12format));
-//                    WritableCell cell=sheet.getWritableCell(i,Integer.parseInt(list.get(0))+1);
-//                    if(cell.getType() == CellType.LABEL){
-//                        Label l = (Label)cell;
-//                        l.setString(list.get(i));//对单元格里面的内容进行设置
-//                    }
+                if (code.getLineNo()==null){
+                    list.add(null);
+                }else{
+                    list.add(code.getLineNo().toString());
                 }
+
+                int Rows=sheet.getRows();
+                boolean isExist=false;
+                for (int j = 1; j <Rows ; j++) {
+                    Cell idCell =sheet.getCell(0,j);
+                    if (idCell.getContents().equals(code.getId().toString())){
+                        isExist=true;
+                        for (int i = 0; i <list.size() ; i++) {
+                            //adCell方法是会覆盖原有数据的
+                            sheet.addCell(new Label(i, j, list.get(i), arial12format));
+//                          WritableCell cell=sheet.getWritableCell(i,Integer.parseInt(list.get(0))+1);
+//                          if(cell.getType() == CellType.LABEL){
+//                              Label l = (Label)cell;
+//                              l.setString(list.get(i));//对单元格里面的内容进行设置
+//                          }
+                        }
+                        break;
+                    }
+                }
+                if (!isExist){
+                    throw new Exception("没有此条码");
+
+                }
+                Log.d("ExcelUtil id", ""+code.getId());
+
 
 
                 writebook.write();
                 writebook.close();
                 flag=1;
             }catch (Exception e){
-                if (e instanceof  NullPointerException){
+//                if (e instanceof  NullPointerException){
 
-                    Toast.makeText(context,e.getMessage(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(context,e.getMessage(),Toast.LENGTH_SHORT).show();
 
-                }else {
-                    e.printStackTrace();
-                }
+//                }else {
+//                    Toast.makeText(context,e.getMessage(),Toast.LENGTH_SHORT).show();
+//                }
 
             }
         }
@@ -303,8 +340,8 @@ public class ExcelUtil {
             List<String> list=new ArrayList<>();
             for (int j = 1; j <= Rows; j++) {
                 Cell idCell =sheet.getCell(0,j);
-                Log.d("idcell:", ""+idCell.getContents());
-                Log.d("id", ""+id);
+//                Log.d("idcell:", ""+idCell.getContents());
+//                Log.d("id", ""+id);
                 if (idCell.getContents().equals(id.toString())){
                     for (int i = 0; i <Columns ; i++) {
                         //取得ID列的单元格
@@ -325,6 +362,10 @@ public class ExcelUtil {
             code.setNumber(Long.parseLong(list.get(2)));
             code.setUser(list.get(3));
             code.setProductState(list.get(4));
+            if (!list.get(5).equals("")){
+                code.setLineNo(Integer.parseInt(list.get(5)));
+            }
+
 
 //            Log.d("ExcelUtil id", ""+code.getId());
 
@@ -366,7 +407,7 @@ public class ExcelUtil {
                 code.setNumber(Long.parseLong(list.get(2)));
                 code.setUser(list.get(3));
                 code.setProductState(list.get(4));
-
+                code.setLineNo(Integer.parseInt(list.get(5)));
                 codeList.add(code);
 
             }
@@ -385,7 +426,8 @@ public class ExcelUtil {
     }
 
     //根据页码查询数据
-    public static List<Code> selectAllByPage(String fileName,Integer pageIndex){
+    public static List<Code> selectAllByPage(String fileName, Integer pageIndex){
+
         Code code=null;
         WritableWorkbook writebook = null;
         File file=new File(fileName);
@@ -425,8 +467,13 @@ public class ExcelUtil {
                 code.setNumber(Long.parseLong(list.get(2)));
                 code.setUser(list.get(3));
                 code.setProductState(list.get(4));
+                System.out.println();
+                if (list.get(5).trim()==""){
+                    code.setLineNo(Integer.parseInt(list.get(5)));
+                }
 
                 codeList.add(code);
+
 
             }
 
@@ -448,8 +495,12 @@ public class ExcelUtil {
     public static int getTotalNumber(String fileName){
         File file=new File(fileName);
         Workbook workbook = null;
+        int rows;
         try {
             workbook = Workbook.getWorkbook(file);
+            Sheet sheet=workbook.getSheet(0);
+            rows=sheet.getRows();
+
         } catch (IOException e) {
             e.printStackTrace();
             return 0;
@@ -457,8 +508,98 @@ public class ExcelUtil {
             e.printStackTrace();
             return 0;
         }
-        Sheet sheet=workbook.getSheet(0);
-        int Rows=sheet.getRows();
-        return Rows-1;
+
+
+        return rows-1;
+    }
+
+
+    //获得最新ID
+    public static  int getLatestID(String fileName){
+
+        File file=new File(fileName);
+        Workbook workbook = null;
+        int rows;
+        int LID;
+        try {
+            workbook = Workbook.getWorkbook(file);
+            Sheet sheet=workbook.getSheet(0);
+            rows=sheet.getRows();
+            LID=Integer.parseInt(sheet.getCell(0,rows-1).getContents());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        } catch (BiffException e) {
+            e.printStackTrace();
+            return 0;
+        }
+
+        return LID;
+    }
+
+    //获得ID所对应的行号,返回查询ID在Excel的行数
+    public static  int getRowNoByID(String fileName,int findId){
+
+        File file=new File(fileName);
+        Workbook workbook = null;
+        try {
+            workbook = Workbook.getWorkbook(file);
+            Sheet sheet=workbook.getSheet(0);
+            for (int i = 1; i <sheet.getRows() ; i++) {
+                int id=Integer.parseInt(sheet.getCell(0,i).getContents());
+                if (id==findId){
+                    return i+1;
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        } catch (BiffException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        return 0;
+    }
+
+    //删除条码
+    public  static int delete(Integer id,String fileName){
+        File file=new File(fileName);
+        Workbook workbook = null;
+        WritableWorkbook writebook=null;
+        try{
+            workbook = Workbook.getWorkbook(file);
+            writebook = Workbook.createWorkbook(file, workbook);
+            WritableSheet writeSheet  =  (WritableSheet) writebook.getSheet( 0 );
+
+            int Rows=writeSheet.getRows()-1;
+//            int Columns=writeSheet.getColumns();
+//            List<String> list=new ArrayList<>();
+            for (int j = 1; j <= Rows; j++) {
+                Cell idCell =writeSheet.getCell(0,j);
+//                Log.d("idcell:", ""+idCell.getContents());
+//                Log.d("id", ""+id);
+                if (idCell.getContents().equals(id.toString())){
+                    writeSheet.removeRow(j);
+                    writebook.close();
+                }
+                else {
+//                    Log.d("selectById", "第"+(j+1)+"行没有找到id");
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        } catch (BiffException e) {
+            e.printStackTrace();
+            return 0;
+        } catch (WriteException e) {
+            e.printStackTrace();
+            return 0;
+        }
+
+        return 1;
+
     }
 }

@@ -49,27 +49,39 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener{
     private Context context;
     private String code;
     private Long number;
     private String productState;
+    private Integer lineNo;
 
-    private boolean isRepeat;
+
     private Long n=0L;
     private int deleteNum;
+
+    private int rowNo;
     private int autoId_code;
     private int autoId2_number;
-    //存储在excel中最新的ID
-    private int lastestId;
 
+    private int latestRowNo;
+    //存储在excel中最新的ID
+    private int LID;
 
     private int pageIndex=1;
     private int jumpIndex;
 
     private String fileName;
     private ConstraintLayout constraintLayout;
+
+    private boolean isCanInsert;
+
+    RadioGroup productStateRG1;
+    RadioGroup productStateRG2;
+    TextView linePositionET;
+    EditText lineNoET;
 
 //    @Override
 //    protected void onRestoreInstanceState(Bundle outState) {
@@ -80,59 +92,7 @@ public class MainActivity extends AppCompatActivity {
 //        outState.putLong("number", number);
 //    }
 
-//拦截返回键，改写方法使得其不执行finish（）方法，只退出到后台
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode==KeyEvent.KEYCODE_BACK){
-            moveTaskToBack(true);
-            return false;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-//        Log.d("接收MainActivity参数", intent+"");
-        super.onActivityResult(requestCode, resultCode, intent);
-        switch (resultCode) { //resultCode为回传的标记，我在B中回传的是RESULT_OK
-            case RESULT_OK:
-                //ModifyActivity的请求码为0
-                if( requestCode==0) {
-//                    Bundle b = intent.getExtras(); //获取intent中的bundle
-                    final Code codeDataM=(Code)intent.getSerializableExtra("codeDataM");
-                    String codeM =codeDataM.getCodeNo();
-                    Long numberM = codeDataM.getNumber();
-                    Long id = codeDataM.getId();
-                    System.out.println(codeDataM);
-//                    new  Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            DBUtils.update(codeDataM);
-//                        }
-//                    }).start();
-
-//
-//                    Log.d("codeM", "" + codeM);
-//                    Log.d("numberM", "" + numberM);
-//                    Log.d("Id", "" + id);
-                    try {
-                        if(ExcelUtil.updateExcel(fileName,codeDataM,context)==1) {
-                            Integer lineNo = Integer.parseInt(codeDataM.getId().toString());
-                            ((TextView) findViewById(lineNo * 2 - 1)).setText(codeM);
-                            ((TextView) findViewById(lineNo * 2)).setText(String.format(getResources().getString(R.string.numberValue), numberM));
-
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-                break;
-            default:
-                break;
-        }
-    }
 
 
 
@@ -140,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i("生命周期：", "onCreate called.");
+
 
 
 
@@ -185,13 +146,27 @@ public class MainActivity extends AppCompatActivity {
         Button pageJumpBtn=findViewById(R.id.PageJump);
         final EditText CurrentPageIndexET =findViewById(R.id.CurrentPageIndex);
         EditText TotalPageIndexET =findViewById(R.id.TotalPageIndex);
+        productStateRG1 =findViewById(R.id.rg_1);
+        productStateRG2 =findViewById(R.id.rg_2);
+        linePositionET=findViewById(R.id.linePosition);
+        lineNoET=findViewById(R.id.lineNo);
         //获取ConstraintLayout对象
         constraintLayout=findViewById(R.id.root);
 
         String filePath=sdCardDir.getAbsolutePath();
         fileName ="/"+ new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(new Date()) + "盘点数据"+".xls";
         fileName=filePath+fileName;
+        if (productStateRG1.getCheckedRadioButtonId()==-1){
+            if (productStateRG2.getCheckedRadioButtonId()==-1){
 
+            }else{
+                productState=((RadioButton)findViewById(productStateRG2.getCheckedRadioButtonId())).getText().toString();
+            }
+        }else {
+            productState=((RadioButton)findViewById(productStateRG1.getCheckedRadioButtonId())).getText().toString();
+        }
+        Log.d("单选ID：", ""+productStateRG2.getCheckedRadioButtonId());
+//        productState=((RadioButton)findViewById(productStateRG.getCheckedRadioButtonId())).getText().toString();
 
         codeNum.setVisibility(View.GONE);
         CurrentPageIndexET.addTextChangedListener(new TextWatcher() {
@@ -218,36 +193,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //获得单选框的值
-        RadioGroup productStateRG =findViewById(R.id.rg_1);
-        productStateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case R.id.rb_1:
-//                        System.out.println(((RadioButton)(findViewById(R.id.rb_1))).getText().toString());
-                        productState=((RadioButton)(findViewById(R.id.rb_1))).getText().toString();
-                        break;
-                    case R.id.rb_2:
-//                        System.out.println(((RadioButton)(findViewById(R.id.rb_2))).getText().toString());
-                        productState=((RadioButton)(findViewById(R.id.rb_2))).getText().toString();
-                        break;
-                    case R.id.rb_3:
-//                        System.out.println(((RadioButton)(findViewById(R.id.rb_3))).getText().toString());
-                        productState=((RadioButton)(findViewById(R.id.rb_3))).getText().toString();
-                        break;
-                    default:
-                        System.out.println("");
-                }
-            }
-        });
+
+
+        productStateRG1.setOnCheckedChangeListener(this);
+        productStateRG2.setOnCheckedChangeListener(this);
+
+
+//        productStateRG2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                Log.d("TAG2", "onCheckedChanged: ");
+////
+////                switch (checkedId){
+////                    case R.id.rb_1:
+////                        //                        System.out.println(((RadioButton)(findViewById(R.id.rb_1))).getText().toString());
+////                        productState=((RadioButton)(findViewById(R.id.rb_1))).getText().toString();
+////                        break;
+////                    case R.id.rb_2:
+////                        //                        System.out.println(((RadioButton)(findViewById(R.id.rb_2))).getText().toString());
+////                        productState=((RadioButton)(findViewById(R.id.rb_2))).getText().toString();
+////                        break;
+////                    case R.id.rb_3:
+////                        //                        System.out.println(((RadioButton)(findViewById(R.id.rb_3))).getText().toString());
+////                        productState=((RadioButton)(findViewById(R.id.rb_3))).getText().toString();
+////                        break;
+////                    default:
+////                        System.out.println("");
+////                }
+//            }
+//        });
 
         /*检查本地是否已经有盘点数据*/
         int sum=ExcelUtil.getTotalNumber(fileName);
-
+        LID=ExcelUtil.getLatestID(fileName);
         if (sum>0) {
-            lastestId=sum;
-            codeNum.setText(String.format(getResources().getString(R.string.codeNum), lastestId));
+            latestRowNo=sum;
+            codeNum.setText(String.format(getResources().getString(R.string.codeNum), latestRowNo));
             codeNum.setVisibility(View.VISIBLE);
 
             int currentPage=1;
@@ -256,13 +237,15 @@ public class MainActivity extends AppCompatActivity {
             CurrentPageIndexET.setText(String.format(getResources().getString(R.string.pageIndex),currentPage));
             TotalPageIndexET.setText(String.format(getResources().getString(R.string.pageIndex),totalPage));
 
-            List<Code> codeList=ExcelUtil.selectAllByPage(fileName,1);
-            userTextET.setText(codeList.get(0).getUser()); ;
+            List<Code> codeList =ExcelUtil.selectAllByPage(fileName,1);
+            System.out.println(codeList);
+            userTextET.setText(codeList.get(0).getUser());
 
             //如果有就加载第一页到视图
-            for (int i = 0; i <codeList.size() ; i++) {
-                Long tempid=codeList.get(i).getId()*2-1;
-                Long tempid2=codeList.get(i).getId()*2;
+            for (int i = 1; i <=codeList.size() ; i++) {
+                int rowNo=i;
+                Long tempid=i*2L-1;
+                Long tempid2=i*2L;
                 Integer id=Integer.parseInt(tempid.toString());
                 Integer id2=Integer.parseInt(tempid2.toString());
                 Log.d("id：", ""+id);
@@ -271,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 //添加codeView
                 TextView codeTextView = new TextView(context);
                 codeTextView.setId(id);
-                codeTextView.setText(String.format(getResources().getString(R.string.codeValue), codeList.get(i).getCodeNo()));
+                codeTextView.setText(String.format(getResources().getString(R.string.codeValue), codeList.get(i-1).getCodeNo()));
                 //文字居中
                 codeTextView.setGravity(Gravity.START);
                 //改变字体大小
@@ -283,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 //添加numberView
                 TextView numberTextView = new TextView(context);
                 numberTextView.setId(id2);
-                numberTextView.setText(String.format(getResources().getString(R.string.numberValue), codeList.get(i).getNumber()));
+                numberTextView.setText(String.format(getResources().getString(R.string.numberValue), codeList.get(i-1).getNumber()));
                 numberTextView.setGravity(Gravity.END);
 
                 numberTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
@@ -437,35 +420,51 @@ public class MainActivity extends AppCompatActivity {
 //            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             public void onClick(View v) {
+                isCanInsert=false;
 
-
-                if (number == null) {
-                    Toast.makeText(context, "数量不能为空", Toast.LENGTH_SHORT).show();
-                }
-                else if(code==null){
+                if (code==null) {
                     Toast.makeText(context, "条码不能为空", Toast.LENGTH_SHORT).show();
                 }
+                else if(number == null){
+                    Toast.makeText(context, "数量不能为空", Toast.LENGTH_SHORT).show();
+                }
                 else {
+                    if (productState==null){
+                        Toast.makeText(context, "请选择产品状态", Toast.LENGTH_SHORT).show();
+                    }else {
+
+                        isCanInsert=true;
+                        if (((RadioButton)findViewById(R.id.rb_4)).getText().toString().equals(productState)   ){
+
+                            if ((lineNoET.getText().toString()).trim().length()==0){
+                                Toast.makeText(context, "线位不能为空", Toast.LENGTH_SHORT).show();
+                                isCanInsert=false;
+                            }
+                        }
+
+                    }
+                }
+                if (isCanInsert) {
                     //判断是否是最大页数，是则直接写入数据，否则先跳转到最大页数再写入数据
-                    if(!(CurrentPageIndexET.getText().toString().equals(TotalPageIndexET.getText().toString()))){
+                    if (!(CurrentPageIndexET.getText().toString().equals(TotalPageIndexET.getText().toString()))) {
                         System.out.println(pageIndex);
-                        int index=Integer.parseInt(TotalPageIndexET.getText().toString());
+                        int index = Integer.parseInt(TotalPageIndexET.getText().toString());
                         cleanview(pageIndex);
 
-                        List<Code> codeList=ExcelUtil.selectAllByPage(fileName,index);
+                        List<Code> codeList = ExcelUtil.selectAllByPage(fileName, index);
                         addViewByPage(codeList);
-                        CurrentPageIndexET.setText(String.format(getResources().getString(R.string.pageIndex),index));
-                        pageIndex=index;
+                        CurrentPageIndexET.setText(String.format(getResources().getString(R.string.pageIndex), index));
+                        pageIndex = index;
                     }
                     //判断行数是否等于10，是的话删除所有条码
 
-                    Log.d("行数：", "" + (n + lastestId) % 10);
-                    if ((n + lastestId) % 10 == 0 ) {
-                        if(n+lastestId!=0){
-                            for (int i = 1; i <=10 ; i++) {
-                                int line=(pageIndex-1)*10+i;
-                                constraintLayout.removeView(findViewById(2*line-1));
-                                constraintLayout.removeView(findViewById(2*line));
+                    Log.d("行数：", "" + (n + latestRowNo) % 10);
+                    if ((n + latestRowNo) % 10 == 0) {
+                        if (n + latestRowNo != 0) {
+                            for (int i = 1; i <= 10; i++) {
+                                int line = (pageIndex - 1) * 10 + i;
+                                constraintLayout.removeView(findViewById(2 * line - 1));
+                                constraintLayout.removeView(findViewById(2 * line));
 
 
                             }
@@ -478,18 +477,16 @@ public class MainActivity extends AppCompatActivity {
                     }
 
 
-
-                        //生成ViewID,latesestId是最新的行号
+                    //生成ViewID,latestRowNo是最新的行号
                     autoId_code = ViewCompat.generateViewId();
                     autoId2_number = ViewCompat.generateViewId();
-                    int id = lastestId * 2 + autoId_code;
-                    int id2 = lastestId * 2 + autoId2_number;
-//                    Log.d("id：", ""+id);
-//                    Log.d("id2：", ""+id2);
+                    int id = latestRowNo * 2 + autoId_code;
+                    int id2 = latestRowNo * 2 + autoId2_number;
+                    Log.d("新创建id：", "" + id);
+                    Log.d("新创建id2：", "" + id2);
 
 
-
-                        //添加codeView
+                    //添加codeView
                     TextView codeTextView = new TextView(context);
 
                     codeTextView.setId(id);
@@ -514,111 +511,119 @@ public class MainActivity extends AppCompatActivity {
                     codeTextView.setSingleLine();
                     constraintLayout.addView(numberTextView);
 
-                        //添加点击事件
-                        codeTextView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                final Integer clickId = v.getId();
-                                Log.d("clickId:", "" + v.getId());
+                    //添加点击事件
+                    codeTextView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            final Integer clickId = v.getId();
+                            Log.d("clickId:", "" + v.getId());
 
-                                final Intent intent = new Intent(MainActivity.this, ModifyActivity.class);
+                            final Intent intent = new Intent(MainActivity.this, ModifyActivity.class);
 
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Code code = ExcelUtil.selectById(fileName, clickId / 2 + 1L);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Code code = ExcelUtil.selectById(fileName, clickId / 2 + 1L);
 //                                    Code code=DBUtils.selectById(clickId/2+1L);
-                                        intent.putExtra("codeData", code);
-                                        startActivityForResult(intent, 0);
-                                    }
-                                }).start();
+                                    intent.putExtra("rowNo",clickId / 2 + 1L);
+                                    intent.putExtra("codeData", code);
+
+                                    startActivityForResult(intent, 0);
+                                }
+                            }).start();
 
 
-                            }
-                        });
+                        }
+                    });
 
-                        numberTextView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(final View v) {
-                                final Integer clickId = v.getId();
-                                Log.d("clickId:", "" + v.getId());
+                    numberTextView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            final Integer clickId = v.getId();
+                            Log.d("clickId:", "" + v.getId());
 
-                                final Intent intent = new Intent(MainActivity.this, ModifyActivity.class);
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
+                            final Intent intent = new Intent(MainActivity.this, ModifyActivity.class);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
 
-                                        Code code = ExcelUtil.selectById(fileName, clickId / 2L);
+                                    Code code = ExcelUtil.selectById(fileName, clickId / 2L);
 //                                  Code code=DBUtils.selectById(clickId/2L);
-                                        intent.putExtra("codeData", code);
-                                        startActivityForResult(intent, 0);
-                                    }
-                                }).start();
+                                    intent.putExtra("codeData", code);
+                                    startActivityForResult(intent, 0);
+                                }
+                            }).start();
 
 
-                            }
-                        });
-                        //新建样式
-                        ConstraintSet set = new ConstraintSet();
-                        set.clone(constraintLayout);
+                        }
+                    });
+                    //新建样式
+                    ConstraintSet set = new ConstraintSet();
+                    set.clone(constraintLayout);
 
-                        if (id %20==1) {
-                            set.connect(codeTextView.getId(), ConstraintSet.TOP, R.id.codeShow, ConstraintSet.BOTTOM);
-                        } else {
+                    if (id % 20 == 1) {
+                        set.connect(codeTextView.getId(), ConstraintSet.TOP, R.id.codeShow, ConstraintSet.BOTTOM);
+                    } else {
 //                       set.connect(codeTextView.getId(), ConstraintSet.TOP, id - 2, ConstraintSet.BOTTOM);
-                            set.connect(id - 2, ConstraintSet.TOP, id, ConstraintSet.BOTTOM);
-                            set.connect(id, ConstraintSet.TOP, R.id.codeShow, ConstraintSet.BOTTOM);
-                        }
-                        set.connect(codeTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+                        set.connect(id - 2, ConstraintSet.TOP, id, ConstraintSet.BOTTOM);
+                        set.connect(id, ConstraintSet.TOP, R.id.codeShow, ConstraintSet.BOTTOM);
+                    }
+                    set.connect(codeTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
 
 
-                        if (id2%20 == 2) {
-                            set.connect(numberTextView.getId(), ConstraintSet.TOP, R.id.numberShow, ConstraintSet.BOTTOM);
-                        } else {
+                    if (id2 % 20 == 2) {
+                        set.connect(numberTextView.getId(), ConstraintSet.TOP, R.id.numberShow, ConstraintSet.BOTTOM);
+                    } else {
 //                       set.connect(numberTextView.getId(), ConstraintSet.TOP, id2 - 2, ConstraintSet.BOTTOM);
-                            set.connect(id2 - 2, ConstraintSet.TOP, id2, ConstraintSet.BOTTOM);
-                            set.connect(id2, ConstraintSet.TOP, R.id.numberShow, ConstraintSet.BOTTOM);
+                        set.connect(id2 - 2, ConstraintSet.TOP, id2, ConstraintSet.BOTTOM);
+                        set.connect(id2, ConstraintSet.TOP, R.id.numberShow, ConstraintSet.BOTTOM);
 
-                        }
-                        set.connect(numberTextView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+                    }
+                    set.connect(numberTextView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
 
-                        set.connect(codeTextView.getId(), ConstraintSet.END, numberTextView.getId(), ConstraintSet.START);
-                        set.connect(numberTextView.getId(), ConstraintSet.START, codeTextView.getId(), ConstraintSet.END);
-                        set.constrainWidth(codeTextView.getId(), 380);
-                        set.constrainWidth(numberTextView.getId(), 0);
-                        set.constrainHeight(codeTextView.getId(), ConstraintSet.WRAP_CONTENT);
-                        set.constrainHeight(numberTextView.getId(), ConstraintSet.WRAP_CONTENT);
+                    set.connect(codeTextView.getId(), ConstraintSet.END, numberTextView.getId(), ConstraintSet.START);
+                    set.connect(numberTextView.getId(), ConstraintSet.START, codeTextView.getId(), ConstraintSet.END);
+                    set.constrainWidth(codeTextView.getId(), 380);
+                    set.constrainWidth(numberTextView.getId(), 0);
+                    set.constrainHeight(codeTextView.getId(), ConstraintSet.WRAP_CONTENT);
+                    set.constrainHeight(numberTextView.getId(), ConstraintSet.WRAP_CONTENT);
 
 
-                        //应用布局样式
+                    //应用布局样式
 
-                        set.applyTo(constraintLayout);
+                    set.applyTo(constraintLayout);
 
-                        //显示视图
+                    //显示视图
 //                    Log.d("测试", "onClick: ");
-                        setContentView(constraintLayout);
+                    setContentView(constraintLayout);
 
-                        //添加到本地
-                        EditText userET = findViewById(R.id.userText);
-                        Code codeClass = new Code(((autoId_code) / 2 + 1L + lastestId), code, number, userET.getText().toString(),productState);
+                    //添加到本地
+                    EditText userET = findViewById(R.id.userText);
+                    if (lineNoET.getText().length()==0){
+                        lineNo=null;
+                    }else{
+                        lineNo = Integer.parseInt(lineNoET.getText().toString());
+                    }
 
-                        //创建文件
+                    Code codeClass = new Code(((autoId_code) / 2 + 1L + LID), code, number, userET.getText().toString(), productState,lineNo);
 
-                        File saveFile = new File(fileName);
+                    //创建文件
 
-                        String[] title = {"id", "条码", "数量", "用户","产品状态"};
-                        ArrayList<Code> codeList = new ArrayList<Code>();
-                        codeList.add(codeClass);
-                        if (!saveFile.exists()) {
-                            Log.d("Excel:", "文件不存在，新增");
-                            ExcelUtil.initExcel(fileName, title);
-                            ExcelUtil.writeObjListToExcel(codeList, fileName, context);
-                        } else {
-                            Log.d("Excel:", "文件存在，可以添加数据");
-                            ExcelUtil.AddListToExcel(fileName, codeList);
-                        }
+                    File saveFile = new File(fileName);
 
-                        //添加到数据库
+                    String[] title = {"id", "条码", "数量", "用户", "产品状态","线位"};
+                    ArrayList<Code> codeList = new ArrayList<Code>();
+                    codeList.add(codeClass);
+                    if (!saveFile.exists()) {
+                        Log.d("Excel:", "文件不存在，新增");
+                        ExcelUtil.initExcel(fileName, title);
+                        ExcelUtil.writeObjListToExcel(codeList, fileName, context);
+                    } else {
+                        Log.d("Excel:", "文件存在，可以添加数据");
+                        ExcelUtil.AddListToExcel(fileName, codeList);
+                    }
+
+                    //添加到数据库
 
 
 //                    new Thread(new Runnable() {
@@ -627,24 +632,25 @@ public class MainActivity extends AppCompatActivity {
 //                            DBUtils.insert(codeClass);
 //                        }
 //                    }).start();
-                        n++;
-                        //显示已扫条码数
-                        codeNum.setText(String.format(getResources().getString(R.string.codeNum), n + lastestId));
-                        codeNum.setVisibility(View.VISIBLE);
-                        Toast.makeText(context, "添加成功", Toast.LENGTH_LONG).show();
+                    n++;
+                    //显示已扫条码数
+                    codeNum.setText(String.format(getResources().getString(R.string.codeNum), n + latestRowNo));
+                    codeNum.setVisibility(View.VISIBLE);
+                    Toast.makeText(context, "添加成功", Toast.LENGTH_LONG).show();
 
 
-                        //清空数据
-                        isRepeat = false;
-                        codeTextET.setText("");
-                        numberTextET.setText("");
+                    //清空数据
 
-                        codeTextET.setVisibility(View.VISIBLE);
-                        codeTextET.setFocusable(true);
-                        codeTextET.setFocusableInTouchMode(true);
-                        codeTextET.requestFocus();
-                    }
+                    codeTextET.setText("");
+                    numberTextET.setText("");
+                    lineNoET.setText("");
 
+                    codeTextET.setVisibility(View.VISIBLE);
+                    codeTextET.setFocusable(true);
+                    codeTextET.setFocusableInTouchMode(true);
+                    codeTextET.requestFocus();
+
+                }
             }
         });
 
@@ -941,11 +947,88 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //拦截返回键，改写方法使得其不执行finish（）方法，只退出到后台
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode==KeyEvent.KEYCODE_BACK){
+            moveTaskToBack(true);
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+//        Log.d("接收MainActivity参数", intent+"");
+        super.onActivityResult(requestCode, resultCode, intent);
+        switch (resultCode) { //resultCode为回传的标记，我在B中回传的是RESULT_OK
+            case RESULT_OK:
+                //ModifyActivity的请求码为0
+                if( requestCode==0) {
+//                    Bundle b = intent.getExtras(); //获取intent中的bundle
+                    final Code codeDataM=(Code)intent.getSerializableExtra("codeDataM");
+                    String codeM =codeDataM.getCodeNo();
+                    Long numberM = codeDataM.getNumber();
+                    Long id = codeDataM.getId();
+                    System.out.println(codeDataM);
+
+                    try {
+                        if(ExcelUtil.updateExcel(fileName,codeDataM,context)==1) {
+                            Integer lineNo = Integer.parseInt(codeDataM.getId().toString());
+                            ((TextView) findViewById(lineNo * 2 - 1)).setText(codeM);
+                            ((TextView) findViewById(lineNo * 2)).setText(String.format(getResources().getString(R.string.numberValue), numberM));
+
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+
+
+    //清除条码view
     private void cleanview(int pageIndex){
         for (int i = 1; i <=10 ; i++) {
             int line=(pageIndex-1)*10+i;
             constraintLayout.removeView(findViewById(2*line-1));
             constraintLayout.removeView(findViewById(2*line));
         }
+    }
+
+    //单选框监听事件
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        switch (group.getId()){
+            case R.id.rg_1:
+                linePositionET.setVisibility(View.INVISIBLE);
+                lineNoET.setVisibility(View.INVISIBLE);
+                productStateRG2.setOnCheckedChangeListener(null);
+                productStateRG2.clearCheck();
+                productStateRG2.setOnCheckedChangeListener(this);
+                productState=((RadioButton)findViewById(checkedId)).getText().toString();
+                break;
+            case R.id.rg_2:
+
+                if (checkedId==R.id.rb_4){
+                    linePositionET.setVisibility(View.VISIBLE);
+                    lineNoET.setVisibility(View.VISIBLE);
+                }else{
+                    linePositionET.setVisibility(View.INVISIBLE);
+                    lineNoET.setVisibility(View.INVISIBLE);
+                }
+                productStateRG1.setOnCheckedChangeListener(null);
+                productStateRG1.clearCheck();
+                productStateRG1.setOnCheckedChangeListener(this);
+                productState=((RadioButton)findViewById(checkedId)).getText().toString();
+                break;
+        }
+
     }
 }
